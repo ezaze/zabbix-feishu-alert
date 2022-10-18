@@ -67,7 +67,8 @@ class FeishuBase:
             ]
         })
         request = requests.request("POST", url, headers=headers, data=payload)
-        response = json.loads(request.content)['data']['mobile_users'][mobiles][0]['user_id']
+        response = json.loads(request.content)[
+            'data']['mobile_users'][user_email][0]['user_id']
         return response
 
     def _get_chat_id(self, tenant_access_token):
