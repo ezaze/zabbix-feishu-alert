@@ -3,6 +3,7 @@
 @Author: Robby
 @Module name: message_base.py
 @Create date: 2020-06-06
+@Update date: 2022-10-18
 @Function: 
 """
 
@@ -28,11 +29,14 @@ class FeishuBase:
         :param data_dir: zabbix graph storage directory
         """
 
-        self.tenant_access_token = self._get_tenant_access_token(app_id, app_secret)
+        self.tenant_access_token = self._get_tenant_access_token(
+            app_id, app_secret)
         self.chat_id = self._get_chat_id(self.tenant_access_token)
-        self.user_id = self._get_user_id(self.tenant_access_token, user_mobile)
-        self.zabbix_graph = self._get_zabbix_graph(item_id, zabbix_host, zabbix_user, zabbix_passwd, data_dir)
-        self.image_key = self._upload_zabbix_graph(self.tenant_access_token, self.zabbix_graph)
+        self.user_id = self._get_user_id(self.tenant_access_token, user_email)
+        self.zabbix_graph = self._get_zabbix_graph(
+            item_id, zabbix_host, zabbix_user, zabbix_passwd, data_dir)
+        self.image_key = self._upload_zabbix_graph(
+            self.tenant_access_token, self.zabbix_graph)
 
     def _get_tenant_access_token(self, *args, **kwargs):
         raise Exception("Please Implement This Method")
@@ -48,9 +52,10 @@ class FeishuBase:
         userurl = "https://open.feishu.cn/open-apis/user/v1/batch_get_id?mobiles=%s" % mobiles
         headers = {"Authorization": "Bearer %s" % tenant_access_token}
         request = requests.get(url=userurl, headers=headers)
-        response = json.loads(request.content)['data']['mobile_users'][mobiles][0]['user_id']
+        response = json.loads(request.content)[
+            'data']['mobile_users'][mobiles][0]['user_id']
         return response
-    
+
     def _get_user_id(self, tenant_access_token, user_email):
         """
 
@@ -66,10 +71,12 @@ class FeishuBase:
                 f"{user_email}"
             ]
         })
-        request = requests.request("POST", url, headers=headers, data=payload)
-        response = json.loads(request.content)[
-            'data']['mobile_users'][user_email][0]['user_id']
-        return response
+        request = requests.request(
+            "POST", userurl, headers=headers, data=payload)
+        response_json = json.loads(request.content)
+        if response_json["code"] == 0:
+            response_rs = response_json["data"]["user_list"][0]["user_id"]
+        return response_rs
 
     def _get_chat_id(self, tenant_access_token):
         """
@@ -78,7 +85,8 @@ class FeishuBase:
         :return: chat id
         """
         chaturl = "https://open.feishu.cn/open-apis/chat/v4/list?page_size=20"
-        headers = {"Authorization": "Bearer %s" % tenant_access_token, "Content-Type": "application/json"}
+        headers = {"Authorization": "Bearer %s" %
+                   tenant_access_token, "Content-Type": "application/json"}
         request = requests.get(url=chaturl, headers=headers)
         response = json.loads(request.content)['data']['groups'][0]['chat_id']
         return response
@@ -123,10 +131,12 @@ class FeishuBase:
             # 初始化jar，写入cookie
             jar = RequestsCookieJar()
             for item in cookies.iteritems():
-                jar.set(item[0], item[1], domain='{}'.format(zabbix_host), path='/zabbix')
+                jar.set(item[0], item[1], domain='{}'.format(
+                    zabbix_host), path='/zabbix')
 
             # 访问图标
-            graph_response = requests.get('http://{}/zabbix/chart.php?period=7200&width=600&time=600&itemids={}'.format(zabbix_host, item_id),cookies=jar)
+            graph_response = requests.get(
+                'http://{}/zabbix/chart.php?period=7200&width=600&time=600&itemids={}'.format(zabbix_host, item_id), cookies=jar)
 
             # 拼接图片路径
             local_time_str = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
@@ -186,7 +196,8 @@ class FeishuBase:
         """
 
         send_url = "https://open.feishu.cn/open-apis/message/v4/send/"
-        headers = {"Authorization": "Bearer %s" % self.tenant_access_token, "Content-Type": "application/json"}
+        headers = {"Authorization": "Bearer %s" %
+                   self.tenant_access_token, "Content-Type": "application/json"}
         data = {
             "chat_id": self.chat_id,
             "msg_type": "post",
@@ -231,14 +242,14 @@ class FeishuBase:
 
     # 发送恢复消息
     def send_recovery_message(self, title, content):
-
         """
         :param title: zabbix alert title
         :param content: zabbix alert content
         :return: None
         """
         sendurl = "https://open.feishu.cn/open-apis/message/v4/send/"
-        headers = {"Authorization": "Bearer %s" % self.tenant_access_token, "Content-Type": "application/json"}
+        headers = {"Authorization": "Bearer %s" %
+                   self.tenant_access_token, "Content-Type": "application/json"}
         data = {
             "chat_id": self.chat_id,
             "msg_type": "post",
@@ -283,7 +294,8 @@ class FeishuBase:
         :return: None
         """
         sendurl = "https://open.feishu.cn/open-apis/message/v4/send/"
-        headers = {"Authorization": "Bearer %s" % self.tenant_access_token, "Content-Type": "application/json"}
+        headers = {"Authorization": "Bearer %s" %
+                   self.tenant_access_token, "Content-Type": "application/json"}
         data = {
             "chat_id": self.chat_id,
             "msg_type": "post",
