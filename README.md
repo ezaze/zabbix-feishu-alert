@@ -11,7 +11,7 @@ pip install -U  zabbix-feishu-alert
 - 从 Github 安装
 
 ```
-pip install git+https://github.com/yinhuanyi/zabbix-feishu-alert.git
+pip install git+https://github.com/ezaze/zabbix-feishu-alert.git
 ```
 
 > **`(二)：使用方法`**
