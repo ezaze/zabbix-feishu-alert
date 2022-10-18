@@ -16,13 +16,14 @@ from requests.cookies import RequestsCookieJar
 
 class FeishuBase:
 
-    def __init__(self, zabbix_host, zabbix_user, zabbix_passwd, user_mobile, item_id, data_dir, app_id, app_secret):
+    def __init__(self, zabbix_host, zabbix_user, zabbix_passwd, user_email, item_id, data_dir, app_id, app_secret):
         """
 
         :param zabbix_host: zabbix ip address
         :param zabbix_user: zabbix admin username
         :param zabbix_passwd: zabbix admin passwd
-        :param user_mobile: people mobile
+        # :param user_mobile: people mobile
+        :param user_email: corp user_email 
         :param item_id: zabbix item id
         :param data_dir: zabbix graph storage directory
         """
@@ -36,9 +37,9 @@ class FeishuBase:
     def _get_tenant_access_token(self, *args, **kwargs):
         raise Exception("Please Implement This Method")
 
-    def _get_user_id(self, tenant_access_token, user_mobile):
+    def _get_user_id_mobile_old(self, tenant_access_token, user_mobile):
         """
-
+        飞书已停用这种方法
         :param tenant_access_token: feishu tenant_access_token
         :param user_mobile: people mobile
         :return: user id
@@ -47,6 +48,25 @@ class FeishuBase:
         userurl = "https://open.feishu.cn/open-apis/user/v1/batch_get_id?mobiles=%s" % mobiles
         headers = {"Authorization": "Bearer %s" % tenant_access_token}
         request = requests.get(url=userurl, headers=headers)
+        response = json.loads(request.content)['data']['mobile_users'][mobiles][0]['user_id']
+        return response
+    
+    def _get_user_id(self, tenant_access_token, user_email):
+        """
+
+        :param tenant_access_token: feishu tenant_access_token
+        :param user_emails: user_emails
+        :return: user id
+        """
+        user_email
+        userurl = "https://open.feishu.cn/open-apis/contact/v3/users/batch_get_id?user_id_type=user_id"
+        headers = {"Authorization": "Bearer %s" % tenant_access_token}
+        payload = json.dumps({
+            "emails": [
+                f"{user_email}"
+            ]
+        })
+        request = requests.request("POST", url, headers=headers, data=payload)
         response = json.loads(request.content)['data']['mobile_users'][mobiles][0]['user_id']
         return response
 
