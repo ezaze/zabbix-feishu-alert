@@ -41,20 +41,20 @@ class FeishuBase:
     def _get_tenant_access_token(self, *args, **kwargs):
         raise Exception("Please Implement This Method")
 
-    def _get_user_id_mobile_old(self, tenant_access_token, user_mobile):
-        """
-        飞书已停用这种方法
-        :param tenant_access_token: feishu tenant_access_token
-        :param user_mobile: people mobile
-        :return: user id
-        """
-        mobiles = user_mobile
-        userurl = "https://open.feishu.cn/open-apis/user/v1/batch_get_id?mobiles=%s" % mobiles
-        headers = {"Authorization": "Bearer %s" % tenant_access_token}
-        request = requests.get(url=userurl, headers=headers)
-        response = json.loads(request.content)[
-            'data']['mobile_users'][mobiles][0]['user_id']
-        return response
+    # def _get_user_id_mobile_old(self, tenant_access_token, user_mobile):
+    #     """
+    #     飞书已停用这种方法
+    #     :param tenant_access_token: feishu tenant_access_token
+    #     :param user_mobile: people mobile
+    #     :return: user id
+    #     """
+    #     mobiles = user_mobile
+    #     userurl = "https://open.feishu.cn/open-apis/user/v1/batch_get_id?mobiles=%s" % mobiles
+    #     headers = {"Authorization": "Bearer %s" % tenant_access_token}
+    #     request = requests.get(url=userurl, headers=headers)
+    #     response = json.loads(request.content)[
+    #         'data']['mobile_users'][mobiles][0]['user_id']
+    #     return response
 
     def _get_user_id(self, tenant_access_token, user_email):
         """
@@ -63,7 +63,8 @@ class FeishuBase:
         :param user_emails: user_emails
         :return: user id
         """
-        user_email
+        
+        print(tenant_access_token, user_email)
         userurl = "https://open.feishu.cn/open-apis/contact/v3/users/batch_get_id?user_id_type=user_id"
         headers = {"Authorization": "Bearer %s" % tenant_access_token}
         payload = json.dumps({
@@ -74,13 +75,18 @@ class FeishuBase:
         request = requests.request(
             "POST", userurl, headers=headers, data=payload)
         response_json = json.loads(request.content)
+        
         if response_json["code"] == 0:
-            response_rs = response_json["data"]["user_list"][0]["user_id"]
-        return response_rs
+            response = response_json["data"]["user_list"][0]["user_id"]
+        elif response_json["code"] == 99991672:
+            print(f'返回{response_json["code"]} 说明权限不够,请去自建应用里申请权限')
+
+        # print(response)
+        return response
 
     def _get_chat_id(self, tenant_access_token):
         """
-
+        
         :param tenant_access_token: feishu tenant_access_token
         :return: chat id
         """

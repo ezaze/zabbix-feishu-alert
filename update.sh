@@ -11,4 +11,4 @@ git push -u origin master
 # pip3 install git+https://github.com/ezaze/zabbix-feishu-alert.git
 
 # 更新成自己的文件
-rsync -r ./zabbix_feishu_alert/* /Users/pingcap14/Library/Python/3.8/lib/python/site-packages/zabbix_feishu_alert/  
+rsync -r ./zabbix_feishu_alert/* /Users/pingcap14/Library/Python/3.8/lib/python/site-packages/zabbix_feishu_alert/
